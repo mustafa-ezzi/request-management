@@ -54,7 +54,7 @@ const handleSubmit = async (e) => {
   setError('');
 
   if (!credentials.username || !credentials.password) {
-    setError('username and password are required');
+    setError('ITS and password are required');
     return;
   }
 
@@ -96,7 +96,7 @@ const handleSubmit = async (e) => {
   } catch (err) {
     console.error('Login error:', err);
     setError(
-      err?.response?.data?.detail || 'Invalid username or password. Please try again.'
+      err?.response?.data?.detail || 'Invalid ITS or password. Please try again.'
     );
   } finally {
     setIsLoading(false);
@@ -141,7 +141,7 @@ const handleSubmit = async (e) => {
                     name="username"
                     value={credentials.username}
                     onChange={handleChange}
-                    placeholder="username"
+                    placeholder="ITS"
                   />
                 </Label>
 
