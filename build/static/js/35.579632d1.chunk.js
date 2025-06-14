@@ -1,0 +1,2 @@
+(this["webpackJsonpwindmill-dashboard-react"]=this["webpackJsonpwindmill-dashboard-react"]||[]).push([[35],{41:function(a,i,s){a.exports=s.p+"static/media/mainLogo.a5300d04.png"}}]);
+//# sourceMappingURL=35.579632d1.chunk.js.map
