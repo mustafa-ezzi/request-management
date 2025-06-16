@@ -29,7 +29,7 @@ function Login() {
   const fetchInofData = async () => {
     try {
       setIsLoading(true);
-      const response = await get('/users/me');
+      const response = await get('/users/me/');
 
       if (response?.role) {
         localStorage.setItem("role", response.role);
@@ -81,7 +81,10 @@ const handleSubmit = async (e) => {
 
     // Fetch additional user info & role from /users/me if you need to update or verify
     // Await here to make sure it's done before redirecting
-    await fetchInofData();
+    // Only fetch additional user info if login was successful and we have a token
+if (response.access) {
+  await fetchInofData();
+}
 
     // Now get the role from localStorage (should be set by either login or fetchInofData)
     const role = localStorage.getItem('role');
