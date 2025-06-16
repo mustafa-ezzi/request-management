@@ -19,7 +19,7 @@ const Footer = () => {
 
         }}
             className=''>
-            © {currentYear} 
+            {/* © {currentYear}  */}
         </footer>
     );
 };

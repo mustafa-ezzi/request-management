@@ -12,6 +12,15 @@ import {
   Button,
 } from "@windmill/react-ui";
 import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+  Label,
+  Textarea
+} from '@windmill/react-ui';
+import {
   AiOutlineDelete,
 } from "react-icons/ai";
 import CreateBatchModal from "../components/CreateBatchModal";
@@ -31,6 +40,24 @@ function Batch() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailRequests, setDetailRequests] = useState([]);
+
+  const handleRequestDetails = async (batchId) => {
+    try {
+      const resp = await get(`/requests/batches/${batchId}/`);
+      setDetailRequests(resp.request_ids || []); // no `.results[0]` here
+      const batch = batchData.find(b => b.id === batchId);
+      setSelectedBatch(batch);
+      setDetailModalOpen(true);
+    } catch (err) {
+      console.error('Failed to fetch batch details', err);
+      toast.error('Failed to load details');
+    }
+  };
+
+
   const BatchActionButtons = ({ batchId }) => (
     <>
       <button
@@ -41,7 +68,7 @@ function Batch() {
         className="bg-blue-100 mb-2 text-blue-700 rounded-full ml-2 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 px-2 py-1 text-xs "
         title="Delete (TODO)"
       >
-Todo      </button>
+        Todo      </button>
 
       <button
         onClick={(e) => {
@@ -66,6 +93,29 @@ Todo      </button>
       </button>
     </>
   );
+
+  const [removingRequestId, setRemovingRequestId] = useState(null);
+
+  const handleRemoveFromBatch = async (batchId, requestId) => {
+    try {
+      const confirmed = window.confirm("Remove this request from the batch?");
+      if (!confirmed) return;
+
+      setRemovingRequestId(requestId);
+
+      const response = await _delete(`/requests/batches/${batchId}/requests/${requestId}/remove/`);
+
+      toast.success("Request removed from batch");
+    await handleRequestDetails(batchId);
+    } catch (err) {
+      console.error("Failed to remove request from batch:", err);
+      toast.error("Failed to remove request. Try again.");
+    } finally {
+      setRemovingRequestId(null);
+    }
+  };
+
+
 
   useEffect(() => {
     const fetchBatchData = async () => {
@@ -183,7 +233,7 @@ Todo      </button>
         ) : (
           <>
             {/* Desktop Table - Hidden on mobile */}
-            <TableContainer className="hidden md:block mb-8" style={{opacity: 0.97,}}>
+            <TableContainer className="hidden md:block mb-8" style={{ opacity: 0.97, }}>
               <Table>
                 <TableHeader>
                   <tr>
@@ -207,7 +257,13 @@ Todo      </button>
                         </span>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm">{item.request_ids}</span>
+                        <Button
+                          layout="outline"
+                          size="small"
+                          onClick={() => handleRequestDetails(item.id)}
+                        >
+                          Details
+                        </Button>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-4">
@@ -220,7 +276,7 @@ Todo      </button>
                             onClick={() => handleUpdateBatchStatus(item.id, 'todo')}
                             className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
                           >
-                             TODO
+                            TODO
                           </Button>
 
                           <Button
@@ -272,20 +328,29 @@ Todo      </button>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="font-medium dark:text-white truncate">
-                            {item.full_name}
+                            {item.name}
                           </p>
                         </div>
                         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                           <span className="truncate">Name: {item.name}</span>
                         </div>
-                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                        {/* <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                           <span className="truncate">Request IDs: {item.request_ids}</span>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
-                      <div className="flex justify-center">
-                        <BatchActionButtons batchId={item.id} />
-                      </div>
+                    <div className="flex justify-center">
+                      <BatchActionButtons batchId={item.id} />
+                      <Button
+                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRequestDetails(item.id);
+                        }}
+                      >
+                        Details
+                      </Button>
+                    </div>
                   </div>
                 ))
               )}
@@ -293,7 +358,56 @@ Todo      </button>
 
 
           </>
+
         )}
+
+        {detailModalOpen && (
+          <Modal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)}>
+            <ModalHeader>Batch Details</ModalHeader>
+            <ModalBody>
+              <TableContainer>
+                <Table>
+                  <TableHeader>
+                    <tr>
+                      <TableCell>ID</TableCell>
+                      <TableCell>ITS</TableCell>
+                      <TableCell>Type</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Created By</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </tr>
+                  </TableHeader>
+                  <TableBody>
+                    {detailRequests.map(req => (
+                      <TableRow key={req.id}>
+                        <TableCell>{req.id}</TableCell>
+                        <TableCell>{req.its}</TableCell>
+                        <TableCell>{req.type?.replace(/_/g, ' ') || 'N/A'}</TableCell>
+                        <TableCell>{req.status}</TableCell>
+                        <TableCell>{req.created_by}</TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            // disabled={removingRequestId === req.id}
+                            className="text-xs bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+                            onClick={() => selectedBatch?.id && handleRemoveFromBatch(selectedBatch.id, req.id)}
+                          >
+                            {removingRequestId === req.id ? 'Removing...' : 'Remove'}
+                          </Button>
+
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={() => setDetailModalOpen(false)}>Close</Button>
+            </ModalFooter>
+          </Modal>
+        )}
+
       </div>
       {/* Create Batch Modal */}
       <CreateBatchModal

@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchMe = async () => {
     try {
-      const res = await axios.get('/api/me'); // Adjust this to match your endpoint
+      const res = await axios.get('/api/me/'); // Adjust this to match your endpoint
       setUser(res.data);
     } catch (err) {
       console.error('Failed to fetch /me', err);

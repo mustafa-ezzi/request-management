@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import routes from '../../routes/sidebar';
+import getRoutes from '../../routes/sidebar'; // Import the function instead of static routes
 import { NavLink, Route } from 'react-router-dom';
 import * as Icons from '../../icons';
 import SidebarSubmenu from './SidebarSubmenu';
@@ -16,6 +16,9 @@ function Icon({ icon, ...props }) {
 function SidebarContent() {
   const { closeSidebar } = useContext(SidebarContext);
   const { clearModalState, modalState } = useModal();
+  
+  // Get routes dynamically on each render
+  const routes = getRoutes();
 
   const featurePaths = [
     '/app/miqaat-menu/',

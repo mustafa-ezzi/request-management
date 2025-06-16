@@ -15,6 +15,7 @@ const CityRoute = {
   icon: 'CardsIcon',
   name: 'City',
 };
+
 const BatchRoute = {
   path: '/app/batch',
   icon: 'User',
@@ -27,20 +28,23 @@ const usersRoute = {
   name: 'Users',
 };
 
-let routes = [];
+// Export a function that returns routes based on current role
+const getRoutes = () => {
+  let routes = [];
 
-try {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const role = localStorage.getItem('role');
+  try {
+    const role = localStorage.getItem('role');
 
-
-  if (role === 'admin') {
-    routes = [requestRoute];
-  } else if (role === 'super_admin') {
-    routes = [usersRoute,requestRoute,ZoneRoute,CityRoute,BatchRoute];
+    if (role === 'admin') {
+      routes = [requestRoute];
+    } else if (role === 'super_admin') {
+      routes = [usersRoute, requestRoute, ZoneRoute, CityRoute, BatchRoute];
+    }
+  } catch (e) {
+    console.warn('Error getting role from localStorage', e);
   }
-} catch (e) {
-  console.warn('Error parsing user from localStorage', e);
-}
 
-export default routes;
+  return routes;
+};
+
+export default getRoutes;

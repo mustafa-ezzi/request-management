@@ -175,7 +175,7 @@ function Request() {
     switch (status) {
       case 'todo':
         return 'bg-blue-400 text-white';
-      case 'is_batch':
+      case 'in_batch':
         return 'bg-purple-400 text-white';
       case 'discarded':
         return 'bg-yellow-400 text-white';
