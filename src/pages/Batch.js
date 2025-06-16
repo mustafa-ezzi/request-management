@@ -342,7 +342,7 @@ function Batch() {
                     <div className="flex justify-center">
                       <BatchActionButtons batchId={item.id} />
                       <Button
-                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+                        className="bg-blue-100 mb-2 mr-1 text-blue-700 rounded-full ml-2 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 px-2 py-1 text-xs"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRequestDetails(item.id);
@@ -383,7 +383,7 @@ function Batch() {
                         <TableCell>{req.id}</TableCell>
                         <TableCell>{req.its}</TableCell>
                         <TableCell>{req.type?.replace(/_/g, ' ') || 'N/A'}</TableCell>
-                        <TableCell>{req.status}</TableCell>
+                        <TableCell>{req.status.replace(/_/g, ' ') || 'N/A'}</TableCell>
                         <TableCell>{req.created_by}</TableCell>
                         <TableCell>
                           <Button
