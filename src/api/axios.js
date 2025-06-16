@@ -1,8 +1,9 @@
 import axios from "axios";
 
-// let BASE_URL = "http://35.172.211.35/api";
-let BASE_URL = "https://rms-v2.duckdns.org/api";
-
+// let BASE_URL = "http://127.0.0.1:8000/api";
+let BASE_URL = process.env.NODE_ENV === "production" 
+  ? "https://rms-v2.duckdns.org/api" 
+  : "http://127.0.0.1:8000/api";  // Use 127.0.0.1 instead of localhost
 
 
 if (process.env.NODE_ENV === "production") {
