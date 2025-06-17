@@ -189,8 +189,7 @@ if (response.access) {
               </form>
             </main>
           </div>
-          <hr />
-          <Footer />
+         
         </div>
 
       </div>
